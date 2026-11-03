@@ -2,9 +2,9 @@ import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of } from 'rxjs';
-import { NarBarComponent } from '../../../../components/nar-bar/nar-bar.component';
-import { ProfileService } from '../../../../core/services/profile.service';
-import { Profile } from '../../../../core/model/Profile';
+import { NarBarComponent } from '@Component/nar-bar/nar-bar.component';
+import { ProfileService } from '@Core/services/profile.service';
+import { Profile } from '@Core/model/Profile';
 
 interface ContactState {
   profile: Profile | null;

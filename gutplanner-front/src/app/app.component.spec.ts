@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { of } from 'rxjs';
-import { ProfileService } from './core/services/profile.service';
+import { ProfileService } from '@Core/services/profile.service';
 import { provideRouter, Router } from '@angular/router';
 import { routes } from './app.routes';
 
@@ -64,5 +64,51 @@ describe('AppComponent', () => {
     expect(fixture.nativeElement.querySelector('#contact-page')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('#login-form')).toBeNull();
     expect(fixture.nativeElement.querySelectorAll('app-nar-bar').length).toBe(1);
+  });
+
+  it('renders project child routes inside the user layout and returns to the overview', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/user/projeto/1/kanban');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-user app-projeto-kanban')).not.toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('app-side-bar').length).toBe(1);
+    expect(fixture.nativeElement.querySelector('#dashboard-indicators')).toBeNull();
+    expect(router.routerState.snapshot.root.firstChild?.firstChild?.paramMap.get('id')).toBe('1');
+
+    await router.navigateByUrl('/user/projeto/2/tarefas');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-user app-projeto-tarefa')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('app-projeto-kanban')).toBeNull();
+    expect(router.routerState.snapshot.root.firstChild?.firstChild?.paramMap.get('id')).toBe('2');
+
+    fixture.nativeElement.querySelector('#dashboard-home').click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(router.url).toBe('/user');
+    expect(fixture.nativeElement.querySelector('#dashboard-indicators')).not.toBeNull();
+  });
+
+  it('loads the public pages and the profile route', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    for (const [url, selector] of [['/cadastro', 'app-cadastro'], ['/recuperacao', 'app-recuperacao'], ['/user/meu-perfil', 'app-meu-perfil']]) {
+      await router.navigateByUrl(url);
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector(selector)).not.toBeNull();
+    }
+  });
+
+  it('redirects incomplete, unknown and invalid project URLs', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    for (const [url, expected] of [['/user/projeto/1', '/user/projeto/1/kanban'], ['/user/projeto/999/kanban', '/user'], ['/user/desconhecido', '/user'], ['/desconhecido', '/'], ['/login', '/']]) {
+      await router.navigateByUrl(url);
+      fixture.detectChanges();
+      expect(router.url).toBe(expected);
+    }
   });
 });

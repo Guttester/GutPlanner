@@ -1,5 +1,5 @@
 import { InjectionToken } from '@angular/core';
-import { environment } from '../../../environments/enviroments';
+import { environment } from '@Environments/enviroments';
 
 export const API_URL = new InjectionToken<string>('API_URL', {
   providedIn: 'root', factory: () => environment.apiUrl.replace(/\/+$/, '')

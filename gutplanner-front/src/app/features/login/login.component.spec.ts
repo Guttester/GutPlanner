@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { ProfileService } from '../../core/services/profile.service';
-import { ToastService } from '../../core/services/toast.service';
+import { ProfileService } from '@Core/services/profile.service';
+import { ToastService } from '@Core/services/toast.service';
 import { provideRouter, Router } from '@angular/router';
-import { routes } from '../../app.routes';
+import { routes } from '@App/app.routes';
 
-import { LoginComponent } from './login.component';
+import { EntrarComponent as LoginComponent } from './pages/entrar/entrar.component';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;

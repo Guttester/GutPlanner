@@ -1,5 +1,5 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { ToastService } from '../../core/services/toast.service';
+import { ToastService } from '@Core/services/toast.service';
 
 import { NotificacaoComponent } from './notificacao.component';
 

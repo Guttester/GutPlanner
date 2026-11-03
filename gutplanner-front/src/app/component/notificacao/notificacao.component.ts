@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { NgClass } from '@angular/common';
-import { ToastService, ToastType } from '../../core/services/toast.service';
+import { ToastService, ToastType } from '@Core/services/toast.service';
 
 @Component({
   selector: 'app-notificacao',

@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Subject } from 'rxjs';
-import { ProfileService } from '../../../../core/services/profile.service';
-import { Profile } from '../../../../core/model/Profile';
+import { ProfileService } from '@Core/services/profile.service';
+import { Profile } from '@Core/model/Profile';
 
 import { ContatoComponent } from './contato.component';
 

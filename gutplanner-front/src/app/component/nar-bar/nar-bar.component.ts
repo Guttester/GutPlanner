@@ -1,8 +1,8 @@
 import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
-import { ThemeService } from '../../core/infra/theme.service';
-import { ProfileService } from '../../core/services/profile.service';
+import { ThemeService } from '@Core/infra/theme.service';
+import { ProfileService } from '@Core/services/profile.service';
 import { RouterLink } from '@angular/router';
 
 @Component({

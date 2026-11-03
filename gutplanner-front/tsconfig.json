@@ -3,6 +3,13 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "paths": {
+      "@App/*": ["./src/app/*"],
+      "@Component/*": ["./src/app/component/*"],
+      "@Core/*": ["./src/app/core/*"],
+      "@Features/*": ["./src/app/features/*"],
+      "@Environments/*": ["./src/environments/*"]
+    },
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,

@@ -1,6 +1,9 @@
-import { Component, effect, ElementRef, inject, output, signal, viewChild } from '@angular/core';
+import { ThemeService } from '@Core/infra/theme.service';
+import { AccountSettingsService } from '@Core/services/account-settings.service';
+import { ProjectsService } from '@Core/services/projects.service';
+import { Component, inject, effect, ElementRef, output, signal, viewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ThemeService } from '../../core/infra/theme.service';
+import { RouterLink } from '@angular/router';
 
 export interface SidebarProject {
   readonly id: number;
@@ -9,28 +12,27 @@ export interface SidebarProject {
 
 @Component({
   selector: 'app-side-bar',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './side-bar.component.html',
   styleUrl: './side-bar.component.css'
 })
 export class SideBarComponent {
   readonly themeService = inject(ThemeService);
+  readonly account = inject(AccountSettingsService).account;
   readonly createProject = output<SidebarProject>();
   readonly openKanban = output<SidebarProject>();
   readonly createTask = output<SidebarProject>();
   readonly deleteProject = output<SidebarProject>();
-  readonly projects = signal<SidebarProject[]>([
-    { id: 1, name: 'Projeto pessoal' },
-    { id: 2, name: 'Projeto de trabalho' }
-  ]);
+  readonly projects = inject(ProjectsService).projects;
   readonly addingProject = signal(false);
   readonly expandedProjectId = signal<number | null>(null);
+  readonly projectToDelete = signal<SidebarProject | null>(null);
+  private readonly deleteDialog = viewChild<ElementRef<HTMLDialogElement>>('deleteDialog');
   readonly projectName = new FormControl('', {
     nonNullable: true,
     validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(80)]
   });
   private readonly projectNameInput = viewChild<ElementRef<HTMLInputElement>>('projectNameInput');
-  private nextProjectId = 3;
   menuMobileAberto = false;
   sidebarRecolhida = false;
 
@@ -53,7 +55,7 @@ export class SideBarComponent {
   addProject(): void {
     this.projectName.markAsTouched();
     if (this.projectName.invalid) return;
-    const project = { id: this.nextProjectId++, name: this.projectName.value.trim() };
+    const project = { id: Math.max(0, ...this.projects().map(item => item.id)) + 1, name: this.projectName.value.trim() };
     this.projects.update(projects => [...projects, project]);
     this.expandedProjectId.set(project.id);
     this.cancelProject();
@@ -66,6 +68,19 @@ export class SideBarComponent {
   }
 
   removeProject(project: SidebarProject): void {
+    this.projectToDelete.set(project);
+    this.deleteDialog()?.nativeElement.showModal();
+  }
+
+  cancelDelete(): void {
+    this.deleteDialog()?.nativeElement.close();
+    this.projectToDelete.set(null);
+  }
+
+  confirmDelete(): void {
+    const project = this.projectToDelete();
+    if (!project) return;
+    this.cancelDelete();
     this.projects.update(projects => projects.filter(item => item.id !== project.id));
     if (this.expandedProjectId() === project.id) this.expandedProjectId.set(null);
     this.deleteProject.emit(project);

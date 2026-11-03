@@ -1,8 +1,8 @@
-import { PROFILE_API_URL } from '../infra/api.config';
+import { PROFILE_API_URL } from '@Core/infra/api.config';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Profile } from '../model/Profile';
+import { Profile } from '@Core/model/Profile';
 
 @Injectable({
   providedIn: 'root'

@@ -3,9 +3,6 @@
     <svg aria-hidden="true" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
     <span class="text-xl font-bold text-gray-900 dark:text-white"><span class="text-cyan-500">Gut</span>Planner</span>
   </button>
-  <button id="sidebar-mobile-theme" name="toggleSidebarMobileTheme" type="button" (click)="themeService.toggleTheme()" aria-label="Alternar tema" class="flex size-10 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-400 dark:hover:bg-gray-800">
-    <svg aria-hidden="true" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.9 13.3A9 9 0 0 1 10.7 3.1 9 9 0 1 0 20.9 13.3Z"/></svg>
-  </button>
 </header>
 
 @if (menuMobileAberto) {
@@ -21,6 +18,12 @@
       <svg aria-hidden="true" class="size-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
     </button>
   </div>
+
+  <nav aria-label="Navegação da conta" class="mb-4 space-y-1 border-t border-gray-100 pt-3 lg:hidden dark:border-gray-800">
+    <a id="sidebar-mobile-dashboard" routerLink="/user" (click)="menuMobileAberto = false" class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-gray-700 hover:bg-cyan-500/10 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-200"><svg aria-hidden="true" class="size-5 text-cyan-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+    <a id="sidebar-mobile-profile" routerLink="/user/meu-perfil" (click)="menuMobileAberto = false" class="flex min-h-12 items-center gap-3 rounded-xl px-3 py-2 hover:bg-cyan-500/10 focus-visible:outline-2 focus-visible:outline-cyan-500"><span aria-hidden="true" class="flex size-8 shrink-0 items-center justify-center rounded-full bg-cyan-100 text-sm font-semibold text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-400">{{ account().name.charAt(0) }}</span><span class="min-w-0"><span class="block truncate text-sm font-semibold text-gray-700 dark:text-gray-200">{{ account().name }}</span><span class="block text-xs text-gray-500 dark:text-gray-400">Meu perfil</span></span></a>
+    <button id="sidebar-mobile-theme" name="toggleMobileTheme" type="button" (click)="themeService.toggleTheme()" [attr.aria-label]="themeService.isDark() ? 'Ativar tema claro' : 'Ativar tema escuro'" class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm text-gray-700 hover:bg-cyan-500/10 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-200"><svg aria-hidden="true" class="size-5 text-cyan-500" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" viewBox="0 0 24 24">@if (themeService.isDark()) { <circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/> } @else { <path d="M20.9 13.3A9 9 0 0 1 10.7 3.1 9 9 0 1 0 20.9 13.3Z"/> }</svg>{{ themeService.isDark() ? 'Tema claro' : 'Tema escuro' }}</button>
+  </nav>
 
   <div class="mb-4 border-t border-gray-100 dark:border-gray-800"></div>
   <p class="mb-3 px-2 text-[11px] font-semibold tracking-wider text-gray-400 uppercase" [class]="sidebarRecolhida ? 'lg:hidden' : ''">Projetos</p>
@@ -75,8 +78,15 @@
     </ul>
   </div>
 
-  <button id="sidebar-theme-toggle" name="toggleSidebarTheme" type="button" (click)="themeService.toggleTheme()" [attr.aria-label]="themeService.isDark() ? 'Ativar tema claro' : 'Ativar tema escuro'" class="mt-auto hidden min-h-10 cursor-pointer items-center gap-3 rounded-lg px-3 text-sm text-gray-500 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 lg:flex dark:text-gray-400 dark:hover:bg-gray-800" [class]="sidebarRecolhida ? 'lg:justify-center lg:px-1' : ''">
-    <svg aria-hidden="true" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.9 13.3A9 9 0 0 1 10.7 3.1 9 9 0 1 0 20.9 13.3Z"/></svg>
-    <span [class]="sidebarRecolhida ? 'lg:hidden' : ''">Alternar tema</span>
-  </button>
+  <a id="sidebar-logout" routerLink="/" title="Logout" class="mt-auto flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-400 dark:hover:bg-red-500/10 dark:hover:text-red-400" [class]="sidebarRecolhida ? 'lg:justify-center lg:px-1' : ''">
+    <svg aria-hidden="true" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 4H4v16h5m5-12 4 4-4 4M8 12h13"/></svg>
+    <span [class]="sidebarRecolhida ? 'lg:hidden' : ''">Logout</span>
+  </a>
 </aside>
+
+<dialog #deleteDialog id="sidebar-delete-dialog" aria-labelledby="sidebar-delete-title" aria-describedby="sidebar-delete-description" (cancel)="cancelDelete()" (close)="projectToDelete.set(null)" class="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-gray-200 bg-white p-6 text-gray-900 shadow-2xl backdrop:bg-gray-950/60 backdrop:backdrop-blur-sm dark:border-red-500/20 dark:bg-gray-900 dark:text-gray-100">
+  <div aria-hidden="true" class="mb-4 flex size-12 items-center justify-center rounded-2xl border border-red-200 bg-red-50 text-red-500 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400"><svg class="size-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6m4-6v6"/></svg></div>
+  <h2 id="sidebar-delete-title" class="text-xl font-bold">Deletar projeto?</h2>
+  <p id="sidebar-delete-description" class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">Deseja realmente deletar <strong class="wrap-break-word font-semibold text-gray-900 dark:text-white">{{ projectToDelete()?.name }}</strong>? As tarefas do projeto também serão removidas. Esta ação não pode ser desfeita nesta sessão.</p>
+  <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4 dark:border-gray-800"><button id="sidebar-delete-cancel" name="cancelProjectDelete" type="button" autofocus (click)="cancelDelete()" class="cursor-pointer rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:border-gray-700 dark:hover:bg-gray-800">Cancelar</button><button id="sidebar-delete-confirm" name="confirmProjectDelete" type="button" (click)="confirmDelete()" class="cursor-pointer rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Sim, deletar projeto</button></div>
+</dialog>

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { SideBarComponent } from './side-bar.component';
 
@@ -8,7 +9,8 @@ describe('SideBarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SideBarComponent]
+      imports: [SideBarComponent],
+      providers: [provideRouter([])]
     })
     .compileComponents();
 
@@ -57,9 +59,24 @@ describe('SideBarComponent', () => {
     const deleteButton: HTMLButtonElement = fixture.nativeElement.querySelector('#sidebar-delete-project-1');
     deleteButton.click();
     fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#sidebar-project-1')).not.toBeNull();
+    fixture.nativeElement.querySelector('#sidebar-delete-confirm').click();
+    fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('#sidebar-project-1')).toBeNull();
     expect(fixture.nativeElement.querySelector('#sidebar-project-2')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('#sidebar-project-trash')).toBeNull();
+  });
+
+  it('keeps projects when deletion is cancelled', () => {
+    const deleted = spyOn(component.deleteProject, 'emit');
+    component.removeProject(component.projects()[0]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#sidebar-delete-dialog').open).toBeTrue();
+    fixture.nativeElement.querySelector('#sidebar-delete-cancel').click();
+    fixture.detectChanges();
+    expect(component.projects().length).toBe(2);
+    expect(deleted).not.toHaveBeenCalled();
+    expect(component.projectToDelete()).toBeNull();
   });
 
   it('rejects whitespace-only project names', () => {

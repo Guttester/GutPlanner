@@ -4,7 +4,7 @@ import { effect, inject, Injectable, signal } from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private readonly document = inject(DOCUMENT);
-  private readonly darkTheme = signal(true);
+  private readonly darkTheme = signal(false);
   readonly isDark = this.darkTheme.asReadonly();
 
   constructor() {
