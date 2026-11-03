@@ -1,0 +1,24 @@
+<div id="notification-region" class="pointer-events-none fixed right-4 top-4 z-[10000] w-[calc(100%_-_2rem)] max-w-sm font-sans">
+  @if (notifications.toast(); as toast) {
+    @for (item of [toast]; track item.id) {
+      <div id="notification-toast" class="pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-lg shadow-slate-900/10 transition-[opacity,translate] duration-200 motion-reduce:transition-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100" [class.opacity-0]="item.closing" [class.translate-x-2]="item.closing" [attr.role]="item.type === 'error' ? 'alert' : 'status'" [attr.aria-live]="item.type === 'error' ? 'assertive' : 'polite'" aria-atomic="true">
+        <span class="absolute inset-y-0 left-0 w-1 bg-current" [ngClass]="colors[item.type]" aria-hidden="true"></span>
+        <svg class="mt-0.5 size-5 shrink-0" [ngClass]="colors[item.type]" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          @switch (item.type) {
+            @case ('success') { <circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/> }
+            @case ('error') { <circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/> }
+            @case ('warning') { <path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v4m0 4h.01"/> }
+            @case ('info') { <circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/> }
+          }
+        </svg>
+        <div class="min-w-0 flex-1">
+          <p id="notification-title" class="text-sm font-semibold">{{ titles[item.type] }}</p>
+          <p id="notification-message" class="mt-1 wrap-break-word text-sm leading-5 text-slate-600 dark:text-gray-300">{{ item.message }}</p>
+        </div>
+        <button id="notification-dismiss" name="dismissNotification" type="button" (click)="notifications.dismiss(item.id)" aria-label="Fechar notificação" class="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:hover:bg-gray-800 dark:hover:text-gray-100">
+          <svg class="size-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+    }
+  }
+</div>

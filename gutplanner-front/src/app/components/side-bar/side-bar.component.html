@@ -1,0 +1,82 @@
+<header class="fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 lg:hidden dark:border-cyan-500/20 dark:bg-gray-950">
+  <button id="sidebar-mobile-toggle" name="toggleSidebarMobile" type="button" (click)="menuMobileAberto = !menuMobileAberto" [attr.aria-expanded]="menuMobileAberto" aria-controls="project-sidebar" aria-label="Abrir menu de projetos" class="flex items-center gap-3 rounded-lg text-gray-600 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-300">
+    <svg aria-hidden="true" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    <span class="text-xl font-bold text-gray-900 dark:text-white"><span class="text-cyan-500">Gut</span>Planner</span>
+  </button>
+  <button id="sidebar-mobile-theme" name="toggleSidebarMobileTheme" type="button" (click)="themeService.toggleTheme()" aria-label="Alternar tema" class="flex size-10 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-400 dark:hover:bg-gray-800">
+    <svg aria-hidden="true" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.9 13.3A9 9 0 0 1 10.7 3.1 9 9 0 1 0 20.9 13.3Z"/></svg>
+  </button>
+</header>
+
+@if (menuMobileAberto) {
+  <button id="sidebar-mobile-backdrop" name="closeSidebarMobile" type="button" (click)="menuMobileAberto = false" aria-label="Fechar menu de projetos" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden"></button>
+}
+
+<aside id="project-sidebar" aria-label="Projetos" (keydown.escape)="menuMobileAberto = false" class="fixed inset-y-0 left-0 z-50 flex h-dvh w-64 shrink-0 flex-col border-r border-gray-200 bg-white p-4 font-sans transition-[width,translate] duration-300 motion-reduce:transition-none lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 dark:border-cyan-500/20 dark:bg-gray-950" [class]="(sidebarRecolhida ? 'lg:w-20 lg:p-2' : 'lg:w-64') + ' ' + (menuMobileAberto ? 'translate-x-0' : '-translate-x-full')">
+  <div class="mb-6 flex h-8 items-center justify-between gap-2">
+    <button id="sidebar-collapse" name="toggleSidebar" type="button" (click)="sidebarRecolhida = !sidebarRecolhida" [attr.aria-expanded]="!sidebarRecolhida" aria-controls="sidebar-project-actions" title="Expandir ou recolher menu" class="rounded text-xl font-bold tracking-tight text-gray-900 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-white">
+      <span class="text-cyan-500">Gut</span><span [class]="sidebarRecolhida ? 'lg:hidden' : ''">Planner</span>
+    </button>
+    <button id="sidebar-mobile-close" name="closeSidebar" type="button" (click)="menuMobileAberto = false" aria-label="Fechar menu de projetos" class="flex size-8 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 lg:hidden dark:hover:bg-gray-800">
+      <svg aria-hidden="true" class="size-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+
+  <div class="mb-4 border-t border-gray-100 dark:border-gray-800"></div>
+  <p class="mb-3 px-2 text-[11px] font-semibold tracking-wider text-gray-400 uppercase" [class]="sidebarRecolhida ? 'lg:hidden' : ''">Projetos</p>
+
+  <div id="sidebar-project-actions" class="min-h-0 flex-1 overflow-y-auto pb-4">
+    <button id="sidebar-create-project" name="addProject" type="button" (click)="showProjectInput()" [attr.aria-expanded]="addingProject()" aria-controls="sidebar-project-form" aria-label="Adicionar Projeto" title="Adicionar Projeto" class="flex min-h-10 w-full cursor-pointer items-center gap-2 rounded-lg border border-dashed border-cyan-500/40 px-3 text-sm font-semibold text-cyan-700 transition-colors hover:bg-cyan-50 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-cyan-400 dark:hover:bg-cyan-500/10" [class]="sidebarRecolhida ? 'lg:justify-center lg:px-1' : ''">
+      <svg aria-hidden="true" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      <span [class]="sidebarRecolhida ? 'lg:hidden' : ''">Adicionar Projeto</span>
+    </button>
+
+    @if (addingProject()) {
+      <form id="sidebar-project-form" name="addProjectForm" (submit)="$event.preventDefault(); addProject()" class="mt-3 px-1">
+        <label for="sidebar-project-name" class="mb-2 block text-xs font-medium text-gray-600 dark:text-gray-300">Nome do projeto</label>
+        <input #projectNameInput id="sidebar-project-name" name="projectName" [formControl]="projectName" type="text" maxlength="80" placeholder="Ex.: Meu projeto" [attr.aria-invalid]="projectName.touched && projectName.invalid" [attr.aria-describedby]="projectName.touched && projectName.invalid ? 'sidebar-project-error' : null" class="h-10 w-full rounded-lg border border-gray-200 bg-transparent px-3 text-sm text-gray-900 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/10 dark:border-gray-700 dark:text-white" />
+        @if (projectName.touched && projectName.invalid) {
+          <p id="sidebar-project-error" class="mt-1 text-xs text-red-600 dark:text-red-400">Informe um nome com até 80 caracteres.</p>
+        }
+        <div class="mt-2 flex items-center gap-2">
+          <button id="sidebar-project-save" name="saveProject" type="submit" class="cursor-pointer rounded-lg bg-cyan-600 px-3 py-2 text-xs font-semibold text-white hover:bg-cyan-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-500">Adicionar</button>
+          <button id="sidebar-project-cancel" name="cancelProject" type="button" (click)="cancelProject()" class="cursor-pointer rounded-lg px-2 py-2 text-xs text-gray-500 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-400 dark:hover:bg-gray-800">Cancelar</button>
+        </div>
+      </form>
+    }
+
+    <ul id="sidebar-project-list" aria-label="Lista de projetos" class="mt-4 space-y-1">
+      @for (project of projects(); track project.id) {
+        <li [id]="'sidebar-project-' + project.id">
+          <button [id]="'sidebar-project-toggle-' + project.id" name="toggleProject" type="button" (click)="toggleProject(project.id)" [attr.aria-expanded]="expandedProjectId() === project.id" [attr.aria-controls]="'sidebar-project-menu-' + project.id" [title]="project.name" [attr.aria-label]="project.name" class="flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-200 dark:hover:bg-gray-800" [class]="sidebarRecolhida ? 'lg:justify-center lg:px-1' : ''">
+            <svg aria-hidden="true" class="size-4 shrink-0 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11H3V7Z"/></svg>
+            <span class="min-w-0 flex-1 truncate" [class]="sidebarRecolhida ? 'lg:hidden' : ''">{{ project.name }}</span>
+            <svg aria-hidden="true" class="size-4 shrink-0 text-gray-400 transition-transform" [class.rotate-180]="expandedProjectId() === project.id" [class]="sidebarRecolhida ? 'lg:hidden' : ''" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+
+          <div [id]="'sidebar-project-menu-' + project.id" [hidden]="expandedProjectId() !== project.id" class="ml-4 space-y-1 border-l border-gray-200 py-1 pl-3 dark:border-gray-800" [class]="sidebarRecolhida ? 'lg:hidden' : ''">
+            <button [id]="'sidebar-kanban-' + project.id" name="openKanban" type="button" (click)="openKanban.emit(project); menuMobileAberto = false" class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2 text-sm text-cyan-700 hover:bg-cyan-50 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-cyan-400 dark:hover:bg-cyan-500/10">
+              <svg aria-hidden="true" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16m6-16v16M6 8v4m6-4v7m6-7v3"/></svg>
+              Kanban
+            </button>
+            <button [id]="'sidebar-create-task-' + project.id" name="createTask" type="button" (click)="createTask.emit(project); menuMobileAberto = false" class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2 text-sm text-gray-600 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-300 dark:hover:bg-gray-800">
+              <svg aria-hidden="true" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              Criar tarefa
+            </button>
+            <button [id]="'sidebar-delete-project-' + project.id" name="deleteProject" type="button" (click)="removeProject(project)" class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2 text-sm text-red-600 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-500 dark:text-red-400 dark:hover:bg-red-500/10">
+              <svg aria-hidden="true" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6m4-6v6"/></svg>
+              Deletar projeto
+            </button>
+          </div>
+        </li>
+      } @empty {
+        <li id="sidebar-project-empty" class="px-2 py-3 text-xs text-gray-500 dark:text-gray-400" [class]="sidebarRecolhida ? 'lg:hidden' : ''">Nenhum projeto. Adicione o primeiro acima.</li>
+      }
+    </ul>
+  </div>
+
+  <button id="sidebar-theme-toggle" name="toggleSidebarTheme" type="button" (click)="themeService.toggleTheme()" [attr.aria-label]="themeService.isDark() ? 'Ativar tema claro' : 'Ativar tema escuro'" class="mt-auto hidden min-h-10 cursor-pointer items-center gap-3 rounded-lg px-3 text-sm text-gray-500 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 lg:flex dark:text-gray-400 dark:hover:bg-gray-800" [class]="sidebarRecolhida ? 'lg:justify-center lg:px-1' : ''">
+    <svg aria-hidden="true" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.9 13.3A9 9 0 0 1 10.7 3.1 9 9 0 1 0 20.9 13.3Z"/></svg>
+    <span [class]="sidebarRecolhida ? 'lg:hidden' : ''">Alternar tema</span>
+  </button>
+</aside>
