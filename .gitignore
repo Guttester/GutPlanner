@@ -1,0 +1,90 @@
+# Configuracoes locais e segredos (preservar modelos de ambiente)
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.sample
+!.env.template
+
+# Python: ambientes virtuais, bytecode e pacotes gerados
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.eggs/
+__pypackages__/
+pip-wheel-metadata/
+site-packages/
+
+# Python: caches e relatorios de ferramentas
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.pyre/
+.tox/
+.nox/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+nosetests.xml
+.ipynb_checkpoints/
+
+# Frontend: dependencias e caches
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/install-state.gz
+.pnp.*
+.angular/
+.sass-cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# Builds e cobertura (Python e frontend)
+build/
+dist/
+out-tsc/
+bazel-out/
+coverage/
+.cache/
+.parcel-cache/
+.vite/
+playwright-report/
+test-results/
+
+# Logs e arquivos temporarios
+*.log
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+*~
+
+# Sistema operacional e configuracoes pessoais de IDE
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.idea/
+.history/
+*.sublime-workspace
+
+# Configuracoes e documentacao locais dos agentes
+.agents/
+.codex/
+AGENTS.md
+
+# Manter versionados os lockfiles, manifests e configuracoes compartilhadas.
