@@ -34,9 +34,9 @@ describe('SideBarComponent', () => {
     const form: HTMLFormElement = fixture.nativeElement.querySelector('#sidebar-project-form');
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     fixture.detectChanges();
-    expect(component.projects().at(-1)?.name).toBe('Projeto de teste');
+    expect(component.projects().at(-1)?.nomeProjeto).toBe('Projeto de teste');
     expect(fixture.nativeElement.querySelector('#sidebar-project-form')).toBeNull();
-    expect(fixture.nativeElement.querySelector('#sidebar-project-menu-3').hidden).toBeFalse();
+    expect(fixture.nativeElement.querySelector('#sidebar-project-menu-' + component.projects().at(-1)!.idProjeto).hidden).toBeFalse();
   });
 
   it('expands and collapses actions for the clicked project', () => {
@@ -54,7 +54,7 @@ describe('SideBarComponent', () => {
   });
 
   it('removes only the selected project and keeps remaining IDs stable', () => {
-    component.toggleProject(1);
+    component.toggleProject('1');
     fixture.detectChanges();
     const deleteButton: HTMLButtonElement = fixture.nativeElement.querySelector('#sidebar-delete-project-1');
     deleteButton.click();

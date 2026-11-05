@@ -26,7 +26,7 @@ describe('UserComponent', () => {
   it('derives indicators from tasks and removes deleted project tasks', () => {
     expect(component.indicators().find(item => item.id === 'tasks')?.value).toBe(20);
     component.removeProject(component.projects()[0]);
-    expect(component.tasks().every(task => task.projectId !== 1)).toBeTrue();
+    expect(component.tasks().every(task => task.idProjeto !== '1')).toBeTrue();
     expect(component.indicators().find(item => item.id === 'projects')?.value).toBe(1);
   });
 
@@ -34,7 +34,7 @@ describe('UserComponent', () => {
     component.showTaskForm(component.projects()[1]);
     component.taskTitle = 'Nova tarefa';
     component.saveTask();
-    expect(component.projectTasks('pending').some(task => task.title === 'Nova tarefa')).toBeTrue();
+    expect(component.projectTasks('pending').some(task => task.nome === 'Nova tarefa')).toBeTrue();
     expect(component.addingTask()).toBeFalse();
   });
 });

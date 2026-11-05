@@ -1,7 +1,7 @@
-import { Tarefa } from "./Tarefa";
+import { Tarefa } from './Tarefa';
 
-export interface Projeto{
-    idProjeto?: string;
-    nomeProjeto: string;
-    tarefas: Array<Tarefa>;
+export interface Projeto {
+  idProjeto: string;
+  nomeProjeto: string;
+  tarefas: Tarefa[];
 }

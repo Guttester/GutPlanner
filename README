@@ -1,0 +1,178 @@
+# ==============================================================================
+# Projeto: GutPlanner — Gerenciador de Tarefas (Kanban)
+# Versão: 0.0.0
+# Contexto: Aplicação para organizar projetos e tarefas, acompanhar o Kanban,
+#           registrar comentários, checklists, etiquetas e anexos.
+# Stack: Angular + Tailwind CSS | Python + FastAPI | MongoDB | Docker + Caddy
+# Licença: Ainda não definida em um arquivo LICENSE no repositório.
+# ==============================================================================
+
+# ---------------------------------> Notas <------------------------------------
+
+- [+] `gutplanner-front`: interface Angular. O navegador acessa a API por `/api`.
+- [+] `gutplanner-back/main.py`: inicia a API FastAPI e conecta os serviços ao MongoDB.
+- [+] `gutplanner-back/Docker`: Dockerfiles, configurações ClamAV e inicializador do replica set.
+- [+] `gutplanner-back/compose.dev.yaml`: backend, MongoDB, Mailpit e ClamAV para desenvolvimento.
+- [+] Mailpit: caixa local de e-mails. Não exige uma caixa real nem envia mensagens para a Internet.
+- [+] ClamAV: verifica os anexos antes de salvar. Scanner indisponível bloqueia uploads com 503.
+- [+] Anexos: PDF, PNG ou JPEG, até 5 MiB por arquivo. Conteúdo armazenado no MongoDB.
+- [+] Caddy: na publicação, serve o build Angular e encaminha `/api/*` ao backend sem remover `/api`.
+- [+] `.env`: configuração local do backend; não deve ser publicado no GitHub nem copiado para a imagem.
+
+# ----------------------------> Pré-requisitos <--------------------------------
+
+- Git e Node.js compatível com Angular 19 (por exemplo, Node.js 22).
+- Docker Engine + Docker Compose v2, ou Docker Desktop com contêineres Linux.
+- Cerca de 6 GB de memória disponíveis para o Docker; ClamAV tem limite de 4 GB.
+- Python 3.10 ou superior somente para executar o backend diretamente na máquina.
+
+O backend usa Python 3.12 na imagem Docker. O MongoDB do Compose é separado do banco instalado na máquina e começa vazio.
+
+# -----------------------> Instalação com Docker <------------------------------
+
+## #1 — Preparar o `.env` do backend
+
+No arquivo `gutplanner-back/.env` existente, preserve suas configurações e confira:
+
+```dotenv
+ENVIRONMENT=development
+PUBLIC_URL=https://planner.guttester.io
+DEVELOPMENT_ORIGIN=http://localhost:4200
+```
+
+Quem acabou de clonar deve criar esse mesmo `.env` no próprio ambiente. Não precisa criar `.env.example` nem cadastrar credenciais SMTP para o Compose local.
+
+`PUBLIC_URL` é o domínio público. `DEVELOPMENT_ORIGIN` permite o frontend local e define o destino dos links de recuperação durante o desenvolvimento. O Compose define suas conexões internas automaticamente: `mongo`, `mailpit` e `clamav`.
+
+## #2 — Conferir a rede Docker
+
+```bash
+docker network inspect Guttester
+```
+
+Se a rede ainda não existir nesta máquina, crie uma única vez:
+
+```bash
+docker network create Guttester
+```
+
+A API entra nessa rede com o alias `gutplanner-backend`, para comunicação com o Caddy. MongoDB e ClamAV não publicam portas no computador.
+
+## #3 — Subir o backend e seus serviços
+
+Na raiz do projeto:
+
+```bash
+docker compose --env-file gutplanner-back/.env -f gutplanner-back/compose.dev.yaml up -d --build
+```
+
+Pare antes qualquer API local na porta 8000 e qualquer Mailpit local na porta 8025. O Compose inicia o replica set e aguarda MongoDB e Mailpit; a API pode iniciar enquanto o ClamAV baixa e carrega as assinaturas.
+
+## #4 — Instalar e iniciar o frontend
+
+Em outro terminal, a partir da raiz:
+
+```bash
+cd gutplanner-front
+npm ci
+npm start
+```
+
+- **Aplicação Angular:** http://localhost:4200
+- **Swagger do backend:** http://localhost:8000/api/docs
+- **Contratos OpenAPI:** http://localhost:8000/api/openapi.json
+- **Caixa Mailpit:** http://localhost:8025
+
+## #5 — Testar recuperação de senha no Mailpit
+
+1. Cadastre uma conta com um e-mail fictício válido, como `pessoa@example.com`.
+2. Em **Esqueceu a senha?**, informe o mesmo e-mail cadastrado.
+3. Abra http://localhost:8025 e entre na mensagem mais recente.
+4. Clique no link, defina a nova senha e entre novamente.
+
+O token expira em 30 minutos, só funciona uma vez e é substituído quando você solicita outro link. Alterar a senha invalida as sessões anteriores. As mensagens Mailpit são temporárias e desaparecem ao parar ou recriar o contêiner. O `.local/mailpit/mailpit.exe` usado nesta máquina não faz parte da instalação de quem clonar; o Compose já fornece a caixa de testes.
+
+## #6 — Acompanhar, atualizar e encerrar
+
+Execute estes comandos na pasta `gutplanner-back`:
+
+```bash
+# Estado dos serviços
+docker compose --env-file .env -f compose.dev.yaml ps -a
+
+# Logs da API
+docker compose --env-file .env -f compose.dev.yaml logs -f backend
+
+# Diagnosticar o antivírus
+docker compose --env-file .env -f compose.dev.yaml logs --tail=120 clamav
+
+# Reconstruir a API após alterar o código
+docker compose --env-file .env -f compose.dev.yaml up -d --build backend
+
+# Encerrar preservando o banco e as assinaturas
+docker compose --env-file .env -f compose.dev.yaml down
+```
+
+Não use `down -v` se quiser preservar os dados. O build da API não possui reload automático. Se o ClamAV estiver demorando, consulte os logs e `docker stats`; baixar assinaturas pode levar tempo na primeira execução. Enquanto ele não responder, os uploads ficam bloqueados, mas as demais operações da API podem funcionar.
+
+# ----------------------> Backend sem Docker (opcional) <-----------------------
+
+Requer MongoDB acessível na máquina e configurações locais no `.env`. Anexos e exclusões que usam transações precisam de replica set. Para testar e-mails e anexos neste modo, também disponibilize SMTP e ClamAV nos endereços configurados; as portas SMTP, MongoDB e ClamAV do Compose acima não são publicadas no host.
+
+```bash
+cd gutplanner-back
+python -m venv .venv
+```
+
+Ative o ambiente conforme seu terminal:
+
+```powershell
+# Windows / PowerShell
+.\.venv\Scripts\Activate.ps1
+```
+
+```bash
+# Linux / macOS
+source .venv/bin/activate
+```
+
+Instale as dependências e inicie a API:
+
+```bash
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload
+```
+
+O `.env` é carregado automaticamente na inicialização. Reinicie o backend após alterar a configuração.
+
+# -------------------------> Build e publicação <-------------------------------
+
+Na pasta `gutplanner-front`:
+
+```bash
+npm run build -- --configuration production
+```
+
+O Caddy deve servir os arquivos de `gutplanner-front/dist/gutplanner-front/browser`, montados em `/srv/gutplanner` dentro do contêiner:
+
+```caddyfile
+planner.guttester.io {
+    handle /api/* {
+        reverse_proxy gutplanner-backend:8000
+    }
+    handle {
+        root * /srv/gutplanner
+        try_files {path} /index.html
+        file_server
+    }
+}
+```
+
+Caddy e backend precisam compartilhar a rede `Guttester`. O `compose.dev.yaml` é um ambiente de desenvolvimento: ele fixa `ENVIRONMENT=development`, usa Mailpit e MongoDB interno sem autenticação. Alterar somente o `.env` não o transforma em produção. A publicação exige configuração própria com `ENVIRONMENT=production`, HTTPS, SMTP real com TLS e proteção do banco. Não exponha a caixa Mailpit publicamente.
+
+# ---------------------------> Documentação <-----------------------------------
+
+- [Backend e configurações](gutplanner-back/README.md)
+- [Contratos da API](swagger.md)
+- [Mailpit](https://mailpit.axllent.org/docs/)
+- [ClamAV Docker](https://docs.clamav.net/manual/Installing/Docker.html)

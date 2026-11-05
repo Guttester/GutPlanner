@@ -1,5 +1,1 @@
-export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:8000',
-  profileApiUrl: 'https://guttester.io'
-};
+export const environment = { production: false, demoMode: false, apiUrl: '/api', profileApiUrl: 'https://guttester.io/api' };

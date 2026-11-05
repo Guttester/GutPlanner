@@ -1,10 +1,15 @@
+import { ToastService } from '@Core/services/toast.service';
+import { AuthService } from '@Core/services/auth.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 import { ProjectsService } from '@Core/services/projects.service';
 import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { ThemeService } from '@Core/infra/theme.service';
-import { ProjectMock } from '@Core/mocks/projects.mock';
-import { KanbanTask } from '@Core/model/KanbanTask';
+import { Projeto } from '@Core/model/Projeto';
+import { AccountSettingsService } from '@Core/services/account-settings.service';
+import { Tarefa, criarTarefaVazia } from '@Core/model/Tarefa';
 import { TaskService } from '@Core/services/task.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideFolder, lucideListTodo, lucideClock3, lucideCircleCheck, lucideSearch, lucideColumns3, lucidePencil, lucideArrowUpRight } from '@ng-icons/lucide';
@@ -19,21 +24,31 @@ import { SideBarComponent } from '@Component/side-bar/side-bar.component';
   host: { '(document:click)': 'closeProfileOutside($event)', '(keydown.escape)': 'closeProfileMenu()' }
 })
 export class UserComponent {
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  readonly childPage = toSignal(this.router.events.pipe(filter(event => event instanceof NavigationEnd), map(() => this.route.snapshot.firstChild?.routeConfig?.path ?? '')), { initialValue: this.route.snapshot.firstChild?.routeConfig?.path ?? '' });
+  readonly auth = inject(AuthService);
+  loggingOut = false;
   readonly themeService = inject(ThemeService);
   readonly profileMenuOpen = signal(false);
   private readonly profileMenu = viewChild<ElementRef<HTMLElement>>('profileMenu');
   private readonly profileToggle = viewChild<ElementRef<HTMLButtonElement>>('profileToggle');
-  readonly projects = inject(ProjectsService).projects;
-  readonly tasks = inject(TaskService).tasks;
-  readonly selectedProject = signal<ProjectMock | null>(null);
+  private readonly settings = inject(AccountSettingsService);
+  readonly account = this.settings.account;
+  private readonly projectStore = inject(ProjectsService);
+  readonly projects = this.projectStore.projects;
+  private readonly taskStore = inject(TaskService);
+  readonly tasks = this.taskStore.tasks;
+  constructor() { void this.projectStore.load().catch(() => {}); void this.settings.loadProfile().catch(() => {}); }
+  readonly selectedProject = signal<Projeto | null>(null);
   readonly addingTask = signal(false);
   readonly taskSearch = signal('');
-  readonly projectFilter = signal(0);
-  readonly dashboardTasks = computed(() => this.tasks().filter(task => this.projects().some(project => project.id === task.projectId) && (!this.projectFilter() || task.projectId === this.projectFilter()) && task.title.toLocaleLowerCase('pt-BR').includes(this.taskSearch().trim().toLocaleLowerCase('pt-BR'))));
-  projectName(id: number): string { return this.projects().find(project => project.id === id)?.name ?? 'Projeto'; }
-  taskCount(id: number): number { return this.tasks().filter(task => task.projectId === id).length; }
-  statusTitle(status: string): string { return ({ pending: 'Backlog', progress: 'Em andamento', review: 'Revisão', done: 'Concluída' } as Record<string, string>)[status] ?? status; }
+  readonly projectFilter = signal('');
+  readonly dashboardTasks = computed(() => this.tasks().filter(task => this.projects().some(project => project.idProjeto === task.idProjeto) && (!this.projectFilter() || task.idProjeto === this.projectFilter()) && task.nome.toLocaleLowerCase('pt-BR').includes(this.taskSearch().trim().toLocaleLowerCase('pt-BR'))));
+  projectName(id: string): string { return this.projects().find(project => project.idProjeto === id)?.nomeProjeto ?? 'Projeto'; }
+  taskCount(id: string): number { return this.tasks().filter(task => task.idProjeto === id).length; }
+  statusTitle(status: string | null): string { return ({ pending: 'Backlog', progress: 'Em andamento', review: 'Revisão', done: 'Concluída' } as Record<string, string>)[status ?? ''] ?? status ?? 'Sem status'; }
   taskTitle = '';
   readonly columns = [
     { status: 'pending', title: 'A fazer' },
@@ -47,6 +62,12 @@ export class UserComponent {
     { id: 'done', title: 'Concluídas', value: this.tasks().filter(task => task.status === 'done').length, symbol: 'lucideCircleCheck', color: 'text-emerald-500' }
   ]);
 
+  logout(): void {
+    if (this.loggingOut) return;
+    this.loggingOut = true;
+    this.auth.logout().subscribe({ next: () => { this.loggingOut = false; void this.router.navigateByUrl('/'); }, error: () => { this.loggingOut = false; } });
+  }
+
   closeProfileOutside(event: Event): void {
     if (event.target instanceof Node && !this.profileMenu()?.nativeElement.contains(event.target)) this.profileMenuOpen.set(false);
   }
@@ -57,46 +78,30 @@ export class UserComponent {
     this.profileToggle()?.nativeElement.focus();
   }
 
-  openProject(project: ProjectMock): void {
+  openProject(project: Projeto): void {
     this.selectedProject.set(project);
     this.addingTask.set(false);
     this.taskTitle = '';
   }
 
-  navigateProject(project: ProjectMock, page: 'kanban' | 'tarefas'): void {
+  navigateProject(project: Projeto, page: 'kanban' | 'tarefas'): void {
     this.selectedProject.set(null);
     this.addingTask.set(false);
-    void this.router.navigate(['/user', 'projeto', project.id, page]);
+    void this.router.navigate(['/user', 'projeto', project.idProjeto, page]);
   }
 
-  addProject(project: ProjectMock): void {
-    this.projects.update(projects => projects.some(item => item.id === project.id) ? projects : [...projects, project]);
-    this.navigateProject(project, 'kanban');
-  }
+  async addProject(project: Projeto): Promise<void> { try { const result = await this.projectStore.add(project); this.toast.success('Projeto criado.'); this.navigateProject(result, 'kanban'); } catch {} }
 
-  removeProject(project: ProjectMock): void {
-    this.projects.update(projects => projects.filter(item => item.id !== project.id));
-    this.tasks.update(tasks => tasks.filter(task => task.projectId !== project.id));
-    if (this.selectedProject()?.id === project.id) this.selectedProject.set(null);
-    this.addingTask.set(false);
-    if (this.router.isActive(`/user/projeto/${project.id}`, false)) void this.router.navigateByUrl('/user');
-  }
+  async removeProject(project: Projeto): Promise<void> { try { await this.projectStore.remove(project.idProjeto); this.toast.success('Projeto removido.'); this.selectedProject.set(null); if (this.router.isActive(`/user/projeto/${project.idProjeto}`, false)) void this.router.navigateByUrl('/user'); } catch {} }
 
-  showTaskForm(project: ProjectMock): void {
+  showTaskForm(project: Projeto): void {
     this.openProject(project);
     this.addingTask.set(true);
   }
 
-  saveTask(): void {
-    const project = this.selectedProject();
-    const title = this.taskTitle.trim();
-    if (!project || !title) return;
-    this.tasks.update(tasks => [...tasks, { id: Math.max(0, ...tasks.map(task => task.id)) + 1, projectId: project.id, title, status: 'pending', priority: 'Média', category: '', description: '', information: '', attachments: [], labels: [], assignee: '', dueDate: '', checklist: [], comments: [] }]);
-    this.taskTitle = '';
-    this.addingTask.set(false);
-  }
+  async saveTask(): Promise<void> { const project = this.selectedProject(); if (!project || !this.taskTitle.trim()) return; try { await this.taskStore.save(criarTarefaVazia({ nome: this.taskTitle.trim() }), project.idProjeto); this.taskTitle = ''; this.addingTask.set(false); } catch {} }
 
-  projectTasks(status: KanbanTask['status']): KanbanTask[] {
-    return this.tasks().filter(task => task.projectId === this.selectedProject()?.id && task.status === status);
+  projectTasks(status: Tarefa['status']): Tarefa[] {
+    return this.tasks().filter(task => task.idProjeto === this.selectedProject()?.idProjeto && task.status === status);
   }
 }

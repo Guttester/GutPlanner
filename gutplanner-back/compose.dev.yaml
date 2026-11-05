@@ -1,0 +1,150 @@
+name: gutplanner-back-dev
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile
+    restart: unless-stopped
+    init: true
+    environment:
+      ENVIRONMENT: development
+      PUBLIC_URL: ${PUBLIC_URL:?Defina PUBLIC_URL no .env do backend}
+      DEVELOPMENT_ORIGIN: http://localhost:4200
+      MONGODB_URI: mongodb://mongo:27017/gutplanner?replicaSet=rs0
+      MONGODB_DATABASE: gutplanner
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_SECURITY: none
+      SMTP_FROM: noreply@example.test
+      SMTP_USER: ""
+      SMTP_PASSWORD: ""
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: "3310"
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_healthy
+      clamav:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/openapi.json', timeout=3).close()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+    cpus: 1
+    networks:
+      data: {}
+      scanning: {}
+      mail: {}
+      web: {}
+
+  mongo:
+    image: mongo:7.0
+    user: "999:999"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    restart: unless-stopped
+    volumes:
+      - mongoData:/data/db
+      - mongoConfig:/data/configdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "if (!db.adminCommand('ping').ok) quit(1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    environment:
+      HOME: /tmp
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 1g
+    cpus: 1
+    networks: [data]
+
+  mongo-init:
+    image: mongo:7.0
+    user: "999:999"
+    entrypoint: ["mongosh", "--nodb", "--quiet", "/scripts/initReplica.js"]
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./Docker/initReplica.js:/scripts/initReplica.js:ro
+    environment:
+      HOME: /tmp
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [data]
+
+  clamav:
+    build:
+      context: .
+      dockerfile: Docker/ClamAV.Dockerfile
+    restart: unless-stopped
+    volumes:
+      - clamavSignatures:/var/lib/clamav
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=128m,mode=1777
+    healthcheck:
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 15s
+      timeout: 10s
+      start_period: 10m
+      retries: 20
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 4g
+    cpus: 2
+    networks: [scanning, updates]
+
+  mailpit:
+    image: axllent/mailpit:v1.33.0
+    user: "1000:1000"
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8025:8025"
+    environment:
+      MP_DATABASE: /tmp/mailpit.db
+      MP_MAX_MESSAGES: "100"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=128m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
+    cpus: 0.5
+    networks: [mail, web]
+
+volumes:
+  mongoData:
+  mongoConfig:
+  clamavSignatures:
+
+networks:
+  data:
+    internal: true
+  scanning:
+    internal: true
+  mail:
+    internal: true
+  updates:
+  web:

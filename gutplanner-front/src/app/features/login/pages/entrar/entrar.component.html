@@ -5,13 +5,13 @@
 
     <form id="login-form" name="loginForm" [formGroup]="form" (ngSubmit)="login()" novalidate class="space-y-5">
       <div>
-        <label for="login-username" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">Nome de usuário</label>
+        <label for="login-username" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">E-mail</label>
         <div class="flex h-12 items-center gap-3 rounded-xl border px-4 transition focus-within:ring-2 dark:bg-gray-800/40" [class]="usuarioInvalido ? 'border-red-500 focus-within:ring-red-500/10 dark:border-red-400' : 'border-gray-200 focus-within:border-cyan-500 focus-within:ring-cyan-500/10 dark:border-gray-700 dark:focus-within:border-cyan-400'">
           <svg aria-hidden="true" class="size-4.5 shrink-0 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>
-          <input id="login-username" name="username" type="text" formControlName="username" placeholder="Seu usuário" autocomplete="username" autocapitalize="none" [spellcheck]="false" [attr.aria-invalid]="usuarioInvalido" [attr.aria-describedby]="usuarioInvalido ? 'username-error' : null" class="min-w-0 w-full bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500" />
+          <input id="login-username" name="username" type="email" formControlName="username" placeholder="Seu e-mail" autocomplete="username" autocapitalize="none" [spellcheck]="false" [attr.aria-invalid]="usuarioInvalido" [attr.aria-describedby]="usuarioInvalido ? 'username-error' : null" class="min-w-0 w-full bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500" />
         </div>
         @if (usuarioInvalido) {
-          <p id="username-error" class="mt-2 text-xs text-red-600 dark:text-red-400">Informe seu nome de usuário.</p>
+          <p id="username-error" class="mt-2 text-xs text-red-600 dark:text-red-400">Informe um e-mail válido.</p>
         }
       </div>
 
@@ -40,8 +40,8 @@
         <a id="login-recovery" routerLink="/recuperacao" class="rounded text-xs font-medium text-gray-500 transition-colors hover:text-cyan-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-500 dark:text-gray-400 dark:hover:text-cyan-400">Esqueceu a senha?</a>
       </div>
 
-      <button id="login-submit" name="loginSubmit" type="submit" class="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-linear-to-r from-cyan-500 to-[#3C92E7] text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-500 active:scale-[0.99] motion-reduce:transition-none">
-        Entrar
+      <button id="login-submit" name="loginSubmit" type="submit" [disabled]="pending" [attr.aria-busy]="pending" class="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-linear-to-r from-cyan-500 to-[#3C92E7] text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-500 active:scale-[0.99] motion-reduce:transition-none">
+        {{ pending ? 'Entrando…' : 'Entrar' }}
         <svg class="size-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
       </button>
     </form>

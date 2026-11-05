@@ -1,0 +1,12 @@
+# Integração opcional com o proxy existente. Não é necessária para desenvolvimento local.
+services:
+  backend:
+    networks:
+      shared:
+        aliases:
+          - gutplanner-backend
+
+networks:
+  shared:
+    external: true
+    name: Guttester

@@ -1,3 +1,7 @@
+dist
+tests
+Front
+
 # Configuracoes locais e segredos (preservar modelos de ambiente)
 .env
 .env.*
@@ -88,3 +92,6 @@ $RECYCLE.BIN/
 AGENTS.md
 
 # Manter versionados os lockfiles, manifests e configuracoes compartilhadas.
+
+# Ferramentas e mensagens de testes locais
+.local/

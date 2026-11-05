@@ -49,24 +49,24 @@
     }
 
     <ul id="sidebar-project-list" aria-label="Lista de projetos" class="mt-4 space-y-1">
-      @for (project of projects(); track project.id) {
-        <li [id]="'sidebar-project-' + project.id">
-          <button [id]="'sidebar-project-toggle-' + project.id" name="toggleProject" type="button" (click)="toggleProject(project.id)" [attr.aria-expanded]="expandedProjectId() === project.id" [attr.aria-controls]="'sidebar-project-menu-' + project.id" [title]="project.name" [attr.aria-label]="project.name" class="flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-200 dark:hover:bg-gray-800" [class]="sidebarRecolhida ? 'lg:justify-center lg:px-1' : ''">
+      @for (project of projects(); track project.idProjeto) {
+        <li [id]="'sidebar-project-' + project.idProjeto">
+          <button [id]="'sidebar-project-toggle-' + project.idProjeto" name="toggleProject" type="button" (click)="toggleProject(project.idProjeto)" [attr.aria-expanded]="expandedProjectId() === project.idProjeto" [attr.aria-controls]="'sidebar-project-menu-' + project.idProjeto" [title]="project.nomeProjeto" [attr.aria-label]="project.nomeProjeto" class="flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-200 dark:hover:bg-gray-800" [class]="sidebarRecolhida ? 'lg:justify-center lg:px-1' : ''">
             <svg aria-hidden="true" class="size-4 shrink-0 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11H3V7Z"/></svg>
-            <span class="min-w-0 flex-1 truncate" [class]="sidebarRecolhida ? 'lg:hidden' : ''">{{ project.name }}</span>
-            <svg aria-hidden="true" class="size-4 shrink-0 text-gray-400 transition-transform" [class.rotate-180]="expandedProjectId() === project.id" [class]="sidebarRecolhida ? 'lg:hidden' : ''" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+            <span class="min-w-0 flex-1 truncate" [class]="sidebarRecolhida ? 'lg:hidden' : ''">{{ project.nomeProjeto }}</span>
+            <svg aria-hidden="true" class="size-4 shrink-0 text-gray-400 transition-transform" [class.rotate-180]="expandedProjectId() === project.idProjeto" [class]="sidebarRecolhida ? 'lg:hidden' : ''" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
           </button>
 
-          <div [id]="'sidebar-project-menu-' + project.id" [hidden]="expandedProjectId() !== project.id" class="ml-4 space-y-1 border-l border-gray-200 py-1 pl-3 dark:border-gray-800" [class]="sidebarRecolhida ? 'lg:hidden' : ''">
-            <button [id]="'sidebar-kanban-' + project.id" name="openKanban" type="button" (click)="openKanban.emit(project); menuMobileAberto = false" class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2 text-sm text-cyan-700 hover:bg-cyan-50 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-cyan-400 dark:hover:bg-cyan-500/10">
+          <div [id]="'sidebar-project-menu-' + project.idProjeto" [hidden]="expandedProjectId() !== project.idProjeto" class="ml-4 space-y-1 border-l border-gray-200 py-1 pl-3 dark:border-gray-800" [class]="sidebarRecolhida ? 'lg:hidden' : ''">
+            <button [id]="'sidebar-kanban-' + project.idProjeto" name="openKanban" type="button" (click)="openKanban.emit(project); menuMobileAberto = false" class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2 text-sm text-cyan-700 hover:bg-cyan-50 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-cyan-400 dark:hover:bg-cyan-500/10">
               <svg aria-hidden="true" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16m6-16v16M6 8v4m6-4v7m6-7v3"/></svg>
               Kanban
             </button>
-            <button [id]="'sidebar-create-task-' + project.id" name="createTask" type="button" (click)="createTask.emit(project); menuMobileAberto = false" class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2 text-sm text-gray-600 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-300 dark:hover:bg-gray-800">
+            <button [id]="'sidebar-create-task-' + project.idProjeto" name="createTask" type="button" (click)="createTask.emit(project); menuMobileAberto = false" class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2 text-sm text-gray-600 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-300 dark:hover:bg-gray-800">
               <svg aria-hidden="true" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
               Criar tarefa
             </button>
-            <button [id]="'sidebar-delete-project-' + project.id" name="deleteProject" type="button" (click)="removeProject(project)" class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2 text-sm text-red-600 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-500 dark:text-red-400 dark:hover:bg-red-500/10">
+            <button [id]="'sidebar-delete-project-' + project.idProjeto" name="deleteProject" type="button" (click)="removeProject(project)" class="flex min-h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2 text-sm text-red-600 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-500 dark:text-red-400 dark:hover:bg-red-500/10">
               <svg aria-hidden="true" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6m4-6v6"/></svg>
               Deletar projeto
             </button>
@@ -78,15 +78,15 @@
     </ul>
   </div>
 
-  <a id="sidebar-logout" routerLink="/" title="Logout" class="mt-auto flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-400 dark:hover:bg-red-500/10 dark:hover:text-red-400" [class]="sidebarRecolhida ? 'lg:justify-center lg:px-1' : ''">
+  <button id="sidebar-logout" name="sidebarLogout" type="button" [disabled]="loggingOut" (click)="logout()" title="Logout" class="mt-auto flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:text-gray-400 dark:hover:bg-red-500/10 dark:hover:text-red-400" [class]="sidebarRecolhida ? 'lg:justify-center lg:px-1' : ''">
     <svg aria-hidden="true" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 4H4v16h5m5-12 4 4-4 4M8 12h13"/></svg>
     <span [class]="sidebarRecolhida ? 'lg:hidden' : ''">Logout</span>
-  </a>
+  </button>
 </aside>
 
 <dialog #deleteDialog id="sidebar-delete-dialog" aria-labelledby="sidebar-delete-title" aria-describedby="sidebar-delete-description" (cancel)="cancelDelete()" (close)="projectToDelete.set(null)" class="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-gray-200 bg-white p-6 text-gray-900 shadow-2xl backdrop:bg-gray-950/60 backdrop:backdrop-blur-sm dark:border-red-500/20 dark:bg-gray-900 dark:text-gray-100">
   <div aria-hidden="true" class="mb-4 flex size-12 items-center justify-center rounded-2xl border border-red-200 bg-red-50 text-red-500 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400"><svg class="size-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6m4-6v6"/></svg></div>
   <h2 id="sidebar-delete-title" class="text-xl font-bold">Deletar projeto?</h2>
-  <p id="sidebar-delete-description" class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">Deseja realmente deletar <strong class="wrap-break-word font-semibold text-gray-900 dark:text-white">{{ projectToDelete()?.name }}</strong>? As tarefas do projeto também serão removidas. Esta ação não pode ser desfeita nesta sessão.</p>
+  <p id="sidebar-delete-description" class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">Deseja realmente deletar <strong class="wrap-break-word font-semibold text-gray-900 dark:text-white">{{ projectToDelete()?.nomeProjeto }}</strong>? As tarefas do projeto também serão removidas. Esta ação não pode ser desfeita nesta sessão.</p>
   <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4 dark:border-gray-800"><button id="sidebar-delete-cancel" name="cancelProjectDelete" type="button" autofocus (click)="cancelDelete()" class="cursor-pointer rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-cyan-500 dark:border-gray-700 dark:hover:bg-gray-800">Cancelar</button><button id="sidebar-delete-confirm" name="confirmProjectDelete" type="button" (click)="confirmDelete()" class="cursor-pointer rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Sim, deletar projeto</button></div>
 </dialog>

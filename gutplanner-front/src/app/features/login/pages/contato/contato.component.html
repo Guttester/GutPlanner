@@ -15,20 +15,33 @@
         <p id="contact-error" role="alert" class="mt-8 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-950/30 dark:text-red-300">Não foi possível carregar os contatos. Tente novamente mais tarde.</p>
       }
       @case ('ready') {
-        <div id="contact-channels" class="mt-8 grid gap-4 sm:grid-cols-2">
+        <div class="mt-8 mb-6"><h2 id="contact-channels-title" class="text-lg font-bold text-gray-900 dark:text-white">Canais de contato</h2><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Escolha como prefere conversar.</p></div>
+        <ng-template #channelIcon let-id>
+          @switch (id) {
+            @case ('email') { <ng-icon name="lucideMail" size="24" aria-hidden="true" /> }
+            @case ('github') { <svg class="size-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"> <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/> </svg> }
+            @case ('linkedin') { <svg class="size-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"> <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.64a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2Z"/> </svg> }
+            @case ('discord') { <svg class="size-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 6.5c3-1.5 7-1.5 10 0 2 3 3 6 3 10-1 1.5-3 2.5-5 3l-1-2c-1.3.5-2.7.5-4 0l-1 2c-2-.5-4-1.5-5-3 0-4 1-7 3-10Z"/><path d="M9 12.5h.01M15 12.5h.01" stroke-width="3"/></svg> }
+          }
+        </ng-template>
+        <div id="contact-channels" aria-labelledby="contact-channels-title" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           @for (channel of channels(); track channel.id) {
-            <article [id]="'contact-' + channel.id" class="min-w-0 rounded-xl border border-gray-200 p-4 dark:border-gray-700">
-              <h2 class="text-base font-bold text-gray-900 dark:text-white">{{ channel.title }}</h2>
-              @if (channel.url) {
-                <a [id]="'contact-' + channel.id + '-link'" [href]="channel.url" [attr.target]="channel.id === 'email' ? null : '_blank'" rel="noopener noreferrer" class="mt-2 block rounded text-sm wrap-break-word text-cyan-600 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-500 dark:text-cyan-400">{{ channel.value }}</a>
-              } @else {
-                <p class="mt-2 text-sm wrap-break-word text-gray-600 dark:text-gray-300">{{ channel.value }}</p>
-              }
-            </article>
+            @if (channel.url) {
+              <a [id]="'contact-' + channel.id + '-link'" [href]="channel.url" [attr.target]="channel.id === 'email' ? null : '_blank'" [attr.rel]="channel.id === 'email' ? null : 'noopener noreferrer'" class="group flex min-w-0 flex-col justify-between gap-5 rounded-2xl border border-gray-200 bg-gray-50/50 p-5 text-left transition duration-200 hover:-translate-y-1 hover:border-cyan-400 hover:bg-cyan-50/40 hover:shadow-lg hover:shadow-cyan-500/5 focus-visible:outline-2 focus-visible:outline-cyan-500 motion-reduce:transform-none dark:border-gray-700 dark:bg-gray-950/40 dark:hover:border-cyan-500/40 dark:hover:bg-cyan-500/5">
+                <div class="flex items-start justify-between"><span class="flex size-12 items-center justify-center rounded-xl" [class]="channel.id === 'email' ? 'bg-cyan-100 text-cyan-600 dark:bg-cyan-500/10 dark:text-cyan-400' : channel.id === 'linkedin' ? 'bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' : 'bg-violet-100 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400'"><ng-container [ngTemplateOutlet]="channelIcon" [ngTemplateOutletContext]="{ $implicit: channel.id }" /></span><ng-icon name="lucideExternalLink" size="16" class="text-gray-400 transition group-hover:text-cyan-500 dark:text-gray-500" aria-hidden="true" /></div>
+                <div class="min-w-0"><h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ channel.title }}</h3><p class="mt-1 truncate text-xs text-gray-500 dark:text-gray-400" [title]="channel.value">{{ channel.value }}</p></div>
+              </a>
+            } @else {
+              <button [id]="'contact-' + channel.id + '-copy'" name="copyContact" type="button" (click)="copyContact(channel.value)" [attr.aria-label]="'Copiar ' + channel.title + ': ' + channel.value" class="group flex min-w-0 flex-col justify-between gap-5 rounded-2xl border border-gray-200 bg-gray-50/50 p-5 text-left transition duration-200 hover:-translate-y-1 hover:border-cyan-400 hover:bg-cyan-50/40 hover:shadow-lg hover:shadow-cyan-500/5 focus-visible:outline-2 focus-visible:outline-cyan-500 motion-reduce:transform-none dark:border-gray-700 dark:bg-gray-950/40 dark:hover:border-cyan-500/40 dark:hover:bg-cyan-500/5">
+                <div class="flex items-start justify-between"><span class="flex size-12 items-center justify-center rounded-xl" [class]="channel.id === 'email' ? 'bg-cyan-100 text-cyan-600 dark:bg-cyan-500/10 dark:text-cyan-400' : channel.id === 'linkedin' ? 'bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' : 'bg-violet-100 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400'"><ng-container [ngTemplateOutlet]="channelIcon" [ngTemplateOutletContext]="{ $implicit: channel.id }" /></span><ng-icon name="lucideCopy" size="16" class="text-gray-400 transition group-hover:text-violet-500 dark:text-gray-500" aria-hidden="true" /></div>
+                <div class="min-w-0"><h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ channel.title }}</h3><p class="mt-1 truncate text-xs text-gray-500 dark:text-gray-400" [title]="channel.value">{{ channel.value }}</p><span class="mt-2 inline-block text-xs font-semibold text-violet-600 dark:text-violet-400">Copiar usuário</span></div>
+              </button>
+            }
           } @empty {
-            <p id="contact-empty" role="status" class="text-sm text-gray-500 sm:col-span-2 dark:text-gray-400">Nenhum canal de contato disponível no momento.</p>
+            <p id="contact-empty" role="status" class="col-span-full py-6 text-center text-sm text-gray-500 dark:text-gray-400">Nenhum canal de contato público disponível no momento.</p>
           }
         </div>
+        <p id="contact-copy-feedback" role="status" aria-live="polite" class="mt-4 text-xs text-cyan-600 dark:text-cyan-400">{{ message }}</p>
       }
     }
   </section>

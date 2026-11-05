@@ -27,14 +27,14 @@ describe('ProjetoKanbanComponent', () => {
     expect(component.columnTasks('pending').some(item => item.id === task.id)).toBeFalse();
     expect(component.columnTasks('progress').some(item => item.id === task.id)).toBeTrue();
     expect(component.selected()?.status).toBe('progress');
-    expect(component.selected()?.attachments).toEqual(task.attachments);
+    expect(component.selected()?.listDocuments).toEqual(task.listDocuments);
   });
 
   it('reorders tasks and rejects tasks from another project', () => {
     const [first, second] = component.columnTasks('pending');
     component.moveTask(second.id, 'pending', first.id);
     expect(component.columnTasks('pending')[0].id).toBe(second.id);
-    const foreign = component.tasks().find(task => task.projectId === 2)!;
+    const foreign = component.tasks().find(task => task.idProjeto === '2')!;
     component.moveTask(foreign.id, 'done');
     expect(component.tasks().find(task => task.id === foreign.id)?.status).toBe(foreign.status);
   });

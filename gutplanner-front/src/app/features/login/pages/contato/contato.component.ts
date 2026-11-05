@@ -1,4 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideMail, lucideExternalLink, lucideCopy } from '@ng-icons/lucide';
 import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of } from 'rxjs';
@@ -20,11 +23,19 @@ interface ContactChannel {
 
 @Component({
   selector: 'app-contato',
-  imports: [NarBarComponent, RouterLink],
+  imports: [NarBarComponent, RouterLink, NgIcon, NgTemplateOutlet],
+  providers: [provideIcons({ lucideMail, lucideExternalLink, lucideCopy })],
   templateUrl: './contato.component.html',
   styleUrl: './contato.component.css'
 })
 export class ContatoComponent {
+  message = '';
+  async copyContact(value: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(value);
+      this.message = 'Contato copiado.';
+    } catch { this.message = 'Não foi possível copiar. Selecione o contato e copie manualmente.'; }
+  }
   private readonly profileService = inject(ProfileService);
   readonly profileState = toSignal(this.profileService.getProfile().pipe(
     map((profile): ContactState => ({ profile, status: 'ready' })),
