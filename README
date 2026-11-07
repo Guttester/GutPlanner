@@ -1,6 +1,6 @@
 # ==============================================================================
 # Projeto: GutPlanner — Gerenciador de Tarefas (Kanban)
-# Versão: 0.0.0
+# Versão: 0.0.5
 # Contexto: Aplicação para organizar projetos e tarefas, acompanhar o Kanban,
 #           registrar comentários, checklists, etiquetas e anexos.
 # Stack: Angular + Tailwind CSS | Python + FastAPI | MongoDB | Docker + Caddy
